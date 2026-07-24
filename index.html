@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#090807" />
+  <meta name="description" content="Convite eletrônico para a inauguração da Dirlaine Souza Nail Designer, em 01 de agosto de 2026, às 17h." />
+  <meta property="og:title" content="Inauguração | Dirlaine Souza Nail Designer" />
+  <meta property="og:description" content="Você é nossa convidada especial. Confirme sua presença e venha celebrar conosco." />
+  <meta property="og:image" content="convite.png" />
+  <title>Inauguração | Dirlaine Souza Nail Designer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="sparkles" aria-hidden="true"></div>
+
+  <header class="hero">
+    <nav class="nav shell">
+      <a class="brand" href="#inicio" aria-label="Dirlaine Souza Nail Designer">
+        <span class="crown">♛</span>
+        <span>DS</span>
+      </a>
+      <div class="nav-links">
+        <a href="#evento">Evento</a>
+        <a href="#confirmar">Confirmar</a>
+        <a href="convidados.html">Painel</a>
+      </div>
+    </nav>
+
+    <section id="inicio" class="hero-content shell">
+      <div class="hero-copy">
+        <p class="eyebrow">Dirlaine Souza • Nail Designer</p>
+        <h1>Grande<br><span>Inauguração</span></h1>
+        <p class="lead">Um novo espaço pensado para oferecer beleza, conforto e sofisticação em cada detalhe.</p>
+        <div class="hero-actions">
+          <a class="btn btn-gold" href="#confirmar">Confirmar presença</a>
+          <a class="btn btn-outline" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Rua+Maca%C3%A9+816+Bairro+Jorge+Teixeira+Ji-Paran%C3%A1+RO">Como chegar</a>
+        </div>
+      </div>
+      <div class="hero-image-card">
+        <img src="fachada-logo.jpg" alt="Identidade visual Dirlaine Souza Nail Designer" />
+      </div>
+    </section>
+  </header>
+
+  <main>
+    <section class="countdown-section" aria-labelledby="countdown-title">
+      <div class="shell">
+        <p class="section-kicker">Faltam</p>
+        <h2 id="countdown-title">Para esse momento especial</h2>
+        <div class="countdown" role="timer" aria-live="polite">
+          <div><strong id="days">00</strong><span>Dias</span></div>
+          <div><strong id="hours">00</strong><span>Horas</span></div>
+          <div><strong id="minutes">00</strong><span>Minutos</span></div>
+          <div><strong id="seconds">00</strong><span>Segundos</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="evento" class="event-section shell">
+      <div class="event-image">
+        <img src="convite.png" alt="Convite completo da inauguração da Dirlaine Souza Nail Designer" />
+      </div>
+      <div class="event-info">
+        <p class="section-kicker">Você é nossa convidada</p>
+        <h2>Venha celebrar conosco</h2>
+        <p>Será um prazer receber você para um momento especial preparado com muito carinho.</p>
+        <div class="info-grid">
+          <article><span>📅</span><div><strong>01 de agosto de 2026</strong><small>Sábado</small></div></article>
+          <article><span>🕔</span><div><strong>17h00</strong><small>Horário</small></div></article>
+          <article><span>📍</span><div><strong>Rua Macaé, nº 816</strong><small>Bairro Jorge Teixeira • Ji-Paraná/RO</small></div></article>
+          <article><span>🥂</span><div><strong>Coquetel de inauguração</strong><small>Recepção especial</small></div></article>
+        </div>
+      </div>
+    </section>
+
+    <section id="confirmar" class="rsvp-section">
+      <div class="shell rsvp-wrap">
+        <div>
+          <p class="section-kicker">Confirmação de presença</p>
+          <h2>Conte com a gente. Podemos contar com você?</h2>
+          <p>Preencha os dados abaixo. Ao confirmar, também será aberta uma mensagem pronta no WhatsApp do salão.</p>
+        </div>
+        <form id="rsvpForm" class="rsvp-form">
+          <label>Nome completo
+            <input id="name" name="name" type="text" autocomplete="name" required placeholder="Digite seu nome" />
+          </label>
+          <label>Telefone
+            <input id="phone" name="phone" type="tel" autocomplete="tel" required placeholder="(69) 99999-9999" />
+          </label>
+          <label>Quantidade de pessoas
+            <select id="guests" name="guests" required>
+              <option value="1">1 pessoa</option>
+              <option value="2">2 pessoas</option>
+              <option value="3">3 pessoas</option>
+              <option value="4">4 pessoas</option>
+              <option value="5">5 pessoas</option>
+            </select>
+          </label>
+          <label>Observação (opcional)
+            <textarea id="note" name="note" rows="3" placeholder="Escreva uma mensagem"></textarea>
+          </label>
+          <button class="btn btn-gold full" type="submit">Confirmar pelo WhatsApp</button>
+          <p class="privacy">Seus dados ficam salvos neste navegador e são enviados ao salão pelo WhatsApp.</p>
+          <div id="success" class="success" hidden>Presença registrada. Obrigada!</div>
+        </form>
+      </div>
+    </section>
+
+    <section class="contact-section shell">
+      <div class="contact-card">
+        <h2>Dirlaine Souza Nail Designer</h2>
+        <p>Serviços exclusivos, ambiente moderno, aconchegante e atendimento personalizado.</p>
+        <div class="contact-actions">
+          <a class="btn btn-gold" target="_blank" rel="noopener" href="https://wa.me/5569984792139">WhatsApp</a>
+          <a class="btn btn-outline" target="_blank" rel="noopener" href="https://instagram.com/dirlaine.souza.naildesigner">Instagram</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="shell footer-inner">
+      <span>© 2026 Dirlaine Souza Nail Designer</span>
+      <a href="convidados.html">Acesso administrativo</a>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Painel de convidados | Dirlaine Souza</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg:#090807;--panel:#15110e;--gold:#e0b157;--text:#f7f2e9;--muted:#bbae9b;--border:rgba(224,177,87,.35)}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Montserrat,Arial,sans-serif}.wrap{width:min(1100px,calc(100% - 28px));margin:40px auto}.login,.panel{border:1px solid var(--border);background:var(--panel);border-radius:22px;padding:26px}.login{max-width:420px;margin:80px auto;text-align:center}h1{font-family:'Cormorant Garamond',serif;font-size:48px;margin:0 0 10px;color:var(--gold)}p{color:var(--muted)}input,button{font:inherit}input{width:100%;padding:14px;border-radius:12px;border:1px solid var(--border);background:#090807;color:var(--text);margin:10px 0}button,a.btn{border:0;border-radius:12px;padding:14px 18px;background:linear-gradient(135deg,#b77a22,#f0cf78);font-weight:700;color:#17110b;cursor:pointer;text-decoration:none;display:inline-block}.top{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:22px 0}.stat{padding:18px;border:1px solid var(--border);border-radius:16px}.stat strong{display:block;font-size:32px;color:var(--gold)}.table-wrap{overflow:auto}table{width:100%;border-collapse:collapse;min-width:760px}th,td{padding:14px;border-bottom:1px solid rgba(255,255,255,.08);text-align:left}th{color:var(--gold)}.actions{display:flex;gap:10px;flex-wrap:wrap}.danger{background:#7b2f2f!important;color:white!important}.hidden{display:none!important}@media(max-width:700px){.stats{grid-template-columns:1fr}h1{font-size:38px}}
+  </style>
+</head>
+<body>
+  <div id="login" class="login">
+    <h1>Painel</h1>
+    <p>Digite a senha administrativa.</p>
+    <input id="password" type="password" inputmode="numeric" placeholder="Senha" />
+    <button id="enter">Entrar</button>
+    <p id="error" class="hidden">Senha incorreta.</p>
+  </div>
+
+  <main id="panel" class="wrap panel hidden">
+    <div class="top">
+      <div><h1>Convidados</h1><p>Confirmações registradas neste navegador.</p></div>
+      <div class="actions"><a class="btn" href="index.html">Abrir convite</a><button id="export">Exportar CSV</button><button id="clear" class="danger">Limpar lista</button></div>
+    </div>
+    <div class="stats"><div class="stat"><span>Confirmações</span><strong id="count">0</strong></div><div class="stat"><span>Total de pessoas</span><strong id="people">0</strong></div><div class="stat"><span>Última confirmação</span><strong id="last">—</strong></div></div>
+    <input id="search" placeholder="Pesquisar por nome ou telefone" />
+    <div class="table-wrap"><table><thead><tr><th>Nome</th><th>Telefone</th><th>Pessoas</th><th>Observação</th><th>Data</th></tr></thead><tbody id="rows"></tbody></table></div>
+  </main>
+<script>
+const PASSWORD='2858';
+const login=document.getElementById('login'), panel=document.getElementById('panel');
+document.getElementById('enter').onclick=()=>{if(document.getElementById('password').value===PASSWORD){sessionStorage.setItem('dirlaine_admin','1');show()}else document.getElementById('error').classList.remove('hidden')};
+if(sessionStorage.getItem('dirlaine_admin')==='1')show();
+function show(){login.classList.add('hidden');panel.classList.remove('hidden');render()}
+function getData(){return JSON.parse(localStorage.getItem('dirlaine_rsvp')||'[]')}
+function render(filter=''){const data=getData().filter(x=>(x.name+' '+x.phone).toLowerCase().includes(filter.toLowerCase()));document.getElementById('rows').innerHTML=data.map(x=>`<tr><td>${esc(x.name)}</td><td>${esc(x.phone)}</td><td>${x.guests}</td><td>${esc(x.note||'—')}</td><td>${new Date(x.createdAt).toLocaleString('pt-BR')}</td></tr>`).join('')||'<tr><td colspan="5">Nenhuma confirmação registrada.</td></tr>';const all=getData();document.getElementById('count').textContent=all.length;document.getElementById('people').textContent=all.reduce((s,x)=>s+Number(x.guests||0),0);document.getElementById('last').textContent=all.length?new Date(all[all.length-1].createdAt).toLocaleDateString('pt-BR'):'—'}
+function esc(s){return String(s).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
+document.getElementById('search').oninput=e=>render(e.target.value);
+document.getElementById('clear').onclick=()=>{if(confirm('Apagar todas as confirmações deste navegador?')){localStorage.removeItem('dirlaine_rsvp');render()}};
+document.getElementById('export').onclick=()=>{const data=getData();const rows=[['Nome','Telefone','Pessoas','Observação','Data'],...data.map(x=>[x.name,x.phone,x.guests,x.note||'',new Date(x.createdAt).toLocaleString('pt-BR')])];const csv=rows.map(r=>r.map(v=>'"'+String(v).replaceAll('"','""')+'"').join(';')).join('\n');const blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='convidados-dirlaine.csv';a.click();URL.revokeObjectURL(a.href)};
+</script>
+</body>
+</html>
