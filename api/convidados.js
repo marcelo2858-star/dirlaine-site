@@ -1,96 +1,58 @@
-const SUPABASE_URL =
-  process.env.SUPABASE_URL ||
-  "https://cpnvkjmpmcidyddkdztp.supabase.co";
+const { createClient } = require("@supabase/supabase-js");
+
+// ===== CONFIGURAÇÃO =====
+const SUPABASE_URL = "https://cpnvkjmpmcidyddkdztp.supabase.co";
 
 const SUPABASE_SECRET =
   process.env.SUPABASE_SERVICE_ROLE_KEY ||
   process.env.SUPABASE_SECRET_KEY;
 
-const PANEL_PASSWORD = process.env.PANEL_PASSWORD || "2858";
+const SENHA_DO_PAINEL = "2858";
+
+// ========================
 
 module.exports = async function handler(req, res) {
-  res.setHeader("Cache-Control", "no-store");
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET,OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type,x-panel-password");
 
-  if (req.headers["x-panel-password"] !== PANEL_PASSWORD) {
+  if (req.method === "OPTIONS") {
+    return res.status(200).end();
+  }
+
+  if (req.headers["x-panel-password"] !== SENHA_DO_PAINEL) {
     return res.status(401).json({
-      error: "Senha incorreta."
+      erro: "Senha incorreta."
     });
   }
 
   if (!SUPABASE_SECRET) {
     return res.status(500).json({
-      error: "Chave secreta do Supabase não configurada na Vercel."
+      erro: "SUPABASE_SERVICE_ROLE_KEY não configurada."
     });
   }
 
-  const headers = {
-    apikey: SUPABASE_SECRET,
-    Authorization: `Bearer ${SUPABASE_SECRET}`,
-    "Content-Type": "application/json"
-  };
-
-  try {
-    if (req.method === "GET") {
-      const url =
-        `${SUPABASE_URL}/rest/v1/confirmacoes_inauguracao` +
-        "?select=id,nome,telefone,observacoes,criado_em" +
-        "&order=criado_em.desc";
-
-      const response = await fetch(url, { headers });
-      const data = await response.json();
-
-      if (!response.ok) {
-        return res.status(response.status).json({
-          error: data.message || "Erro ao consultar convidados."
-        });
+  const supabase = createClient(
+    SUPABASE_URL,
+    SUPABASE_SECRET,
+    {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
       }
-
-      return res.status(200).json({
-        guests: data
-      });
     }
+  );
 
-    if (req.method === "DELETE") {
-      const id = req.body?.id;
+  const { data, error } = await supabase
+    .from("confirmacoes_inauguracao")
+    .select("*")
+    .order("criado_em", { ascending: false });
 
-      if (!id) {
-        return res.status(400).json({
-          error: "Identificador ausente."
-        });
-      }
-
-      const response = await fetch(
-        `${SUPABASE_URL}/rest/v1/confirmacoes_inauguracao?id=eq.${encodeURIComponent(id)}`,
-        {
-          method: "DELETE",
-          headers: {
-            ...headers,
-            Prefer: "return=minimal"
-          }
-        }
-      );
-
-      if (!response.ok) {
-        const data = await response.json().catch(() => ({}));
-
-        return res.status(response.status).json({
-          error: data.message || "Erro ao excluir confirmação."
-        });
-      }
-
-      return res.status(200).json({
-        ok: true
-      });
-    }
-
-    res.setHeader("Allow", "GET, DELETE");
-
-    return res.status(405).json({
-      error: "Método não permitido."
-    });
-  } catch (error) {
+  if (error) {
     return res.status(500).json({
-      error: error.message || "Erro interno."
+      erro: error.message
     });
   }
+
+  return res.status(200).json(data);
 };
