@@ -1,14 +1,222 @@
-SITE PROFISSIONAL — DIRLAINE SOUZA NAIL DESIGNER
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#080706">
+  <meta name="description" content="Grande inauguração da Dirlaine Souza Nail Designer em 01 de agosto de 2026, às 17h, em Ji-Paraná/RO.">
+  <meta property="og:title" content="Grande Inauguração | Dirlaine Souza Nail Designer">
+  <meta property="og:description" content="Você é nossa convidada especial. Confirme sua presença.">
+  <meta property="og:image" content="convite.jpg">
+  <title>Grande Inauguração | Dirlaine Souza Nail Designer</title>
 
-Data: 01/08/2026
-Horário: 17h00
-Painel: /convidados.html
-Senha do painel: 2858
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="intro" class="intro" aria-hidden="true">
+    <div class="intro-logo">
+      <span class="intro-crown">♛</span>
+      <strong>DS</strong>
+      <small>Dirlaine Souza</small>
+    </div>
+  </div>
 
-PUBLICAÇÃO:
-1. Extraia este ZIP.
-2. Envie todos os arquivos para a raiz do repositório GitHub.
-3. Confirme o commit na branch main.
-4. Aguarde a Vercel atualizar automaticamente.
+  <header id="inicio" class="hero">
+    <nav class="nav shell">
+      <a class="brand" href="#inicio" aria-label="Voltar ao início">
+        <span class="brand-crown">♛</span>
+        <span class="brand-mark">DS</span>
+      </a>
 
-A foto quadrada repetida foi removida do layout.
+      <button id="menuButton" class="menu-button" type="button" aria-label="Abrir menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+
+      <div id="navLinks" class="nav-links">
+        <a href="#evento">Evento</a>
+        <a href="#local">Localização</a>
+        <a href="#confirmar">Confirmar presença</a>
+      </div>
+    </nav>
+
+    <div class="hero-overlay"></div>
+    <section class="hero-content shell">
+      <div class="hero-copy reveal">
+        <p class="eyebrow">Dirlaine Souza • Nail Designer</p>
+        <h1>Grande <span>Inauguração</span></h1>
+        <p class="hero-text">
+          Um novo espaço, criado para proporcionar beleza, conforto,
+          elegância e um atendimento verdadeiramente personalizado.
+        </p>
+
+        <div class="hero-actions">
+          <a class="button button-gold" href="#confirmar">Confirmar presença</a>
+          <a class="button button-ghost" href="#local">Como chegar</a>
+        </div>
+
+        <div class="hero-badges">
+          <span>01 de agosto de 2026</span>
+          <span>17h00</span>
+          <span>Ji-Paraná • RO</span>
+        </div>
+      </div>
+    </section>
+  </header>
+
+  <main>
+    <section class="countdown-section">
+      <div class="shell">
+        <p class="section-label">Contagem regressiva</p>
+        <h2>Falta pouco para esse momento especial</h2>
+
+        <div class="countdown" role="timer" aria-live="polite">
+          <div><strong id="days">00</strong><span>Dias</span></div>
+          <div><strong id="hours">00</strong><span>Horas</span></div>
+          <div><strong id="minutes">00</strong><span>Minutos</span></div>
+          <div><strong id="seconds">00</strong><span>Segundos</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="evento" class="event-section shell">
+      <div class="event-poster reveal">
+        <img src="convite.jpg" alt="Convite oficial da inauguração Dirlaine Souza Nail Designer">
+      </div>
+
+      <div class="event-copy reveal">
+        <p class="section-label">Você é nossa convidada</p>
+        <h2>Venha celebrar conosco</h2>
+        <p class="section-text">
+          Preparamos cada detalhe com muito carinho para receber você
+          em uma noite de celebração, beleza e sofisticação.
+        </p>
+
+        <div class="details">
+          <article>
+            <span class="detail-icon">◷</span>
+            <div><small>Data</small><strong>01 de agosto de 2026</strong></div>
+          </article>
+          <article>
+            <span class="detail-icon">◴</span>
+            <div><small>Horário</small><strong>17h00</strong></div>
+          </article>
+          <article>
+            <span class="detail-icon">⌖</span>
+            <div><small>Endereço</small><strong>Rua Macaé, nº 816</strong></div>
+          </article>
+          <article>
+            <span class="detail-icon">♢</span>
+            <div><small>Recepção</small><strong>Coquetel de inauguração</strong></div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="experience-section">
+      <div class="shell">
+        <p class="section-label">Uma nova experiência</p>
+        <h2>Beleza em cada detalhe</h2>
+
+        <div class="experience-grid">
+          <article class="feature-card reveal">
+            <span>✦</span>
+            <h3>Serviços exclusivos</h3>
+            <p>Técnicas, cuidados e acabamentos pensados para valorizar você.</p>
+          </article>
+          <article class="feature-card reveal">
+            <span>◇</span>
+            <h3>Ambiente sofisticado</h3>
+            <p>Um espaço moderno, aconchegante, climatizado e elegante.</p>
+          </article>
+          <article class="feature-card reveal">
+            <span>♡</span>
+            <h3>Atendimento personalizado</h3>
+            <p>Uma experiência acolhedora, atenciosa e feita sob medida.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="local" class="location-section shell">
+      <div class="location-card reveal">
+        <div>
+          <p class="section-label">Localização</p>
+          <h2>Esperamos por você</h2>
+          <p>Rua Macaé, nº 816<br>Bairro Jorge Teixeira<br>Ji-Paraná • Rondônia</p>
+        </div>
+        <a class="button button-gold" target="_blank" rel="noopener"
+           href="https://www.google.com/maps/search/?api=1&query=Rua+Maca%C3%A9+816+Bairro+Jorge+Teixeira+Ji-Paran%C3%A1+RO">
+          Abrir no Google Maps
+        </a>
+      </div>
+    </section>
+
+    <section id="confirmar" class="rsvp-section">
+      <div class="shell rsvp-layout">
+        <div class="rsvp-intro reveal">
+          <p class="section-label">Confirmação de presença</p>
+          <h2>Podemos contar com você?</h2>
+          <p>
+            Preencha seus dados. A confirmação será registrada na lista online
+            e uma mensagem será aberta no WhatsApp do salão.
+          </p>
+
+          <div class="contact-mini">
+            <a href="https://wa.me/5569984792139" target="_blank" rel="noopener">
+              WhatsApp: (69) 98479-2139
+            </a>
+            <a href="https://instagram.com/dirlaine.souza.naildesigner" target="_blank" rel="noopener">
+              @dirlaine.souza.naildesigner
+            </a>
+          </div>
+        </div>
+
+        <form id="rsvpForm" class="rsvp-form reveal">
+          <label for="name">Nome completo</label>
+          <input id="name" name="name" type="text" autocomplete="name" required placeholder="Digite seu nome completo">
+
+          <label for="phone">Telefone</label>
+          <input id="phone" name="phone" type="tel" autocomplete="tel" required placeholder="(69) 99999-9999">
+
+          <input type="hidden" id="guests" name="guests" value="1">
+
+          <label for="note">Observação (opcional)</label>
+          <textarea id="note" name="note" rows="4" placeholder="Escreva uma mensagem"></textarea>
+
+          <button id="submitButton" class="button button-gold button-full" type="submit">
+            Confirmar presença
+          </button>
+
+          <p class="privacy">
+            Seus dados serão usados somente para organizar a lista de convidados.
+          </p>
+          <div id="success" class="success" hidden></div>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <a class="whatsapp-float" href="https://wa.me/5569984792139" target="_blank" rel="noopener" aria-label="Abrir WhatsApp">
+    ☎
+  </a>
+
+  <footer>
+    <div class="shell footer-content">
+      <div>
+        <strong>Dirlaine Souza Nail Designer</strong>
+        <small>Beleza, elegância e atendimento personalizado.</small>
+      </div>
+      <div class="footer-links">
+        <a href="https://instagram.com/dirlaine.souza.naildesigner" target="_blank" rel="noopener">Instagram</a>
+        <a href="/convidados">Painel administrativo</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="config.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
