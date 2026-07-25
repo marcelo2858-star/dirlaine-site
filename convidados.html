@@ -2,75 +2,55 @@
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Painel de convidados | Dirlaine Souza</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="convidados.css">
+  <style>
+    :root{--bg:#080706;--card:#17110d;--gold:#d8aa55;--gold2:#f1cf82;--text:#fff9ee;--muted:#cbbd9f;--line:#5d431c;--danger:#b84b4b}
+    *{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at top,#1a130d 0,#080706 42%);color:var(--text);font-family:Arial,sans-serif;min-height:100vh}
+    button,input{font:inherit}.login-shell{min-height:100vh;display:grid;place-items:center;padding:24px}.login-card{width:min(540px,100%);background:rgba(23,17,13,.96);border:1px solid var(--line);border-radius:34px;padding:42px;box-shadow:0 24px 90px #0008;text-align:center}.monogram{width:88px;height:88px;border:1px solid var(--gold);border-radius:50%;display:grid;place-items:center;margin:auto;color:var(--gold2);font:38px Georgia}.eyebrow{color:var(--gold);text-transform:uppercase;letter-spacing:.16em}.login-card h1,.topbar h1{font-family:Georgia,serif;font-size:clamp(42px,7vw,68px);margin:12px 0}.muted{color:var(--muted);font-size:19px;line-height:1.6}.login-card label{display:block;text-align:left;color:var(--gold2);font-weight:700;margin:26px 0 10px}.login-card input,.toolbar input{width:100%;background:#070605;border:1px solid var(--line);color:white;border-radius:18px;padding:18px}.login-card button,.toolbar button,.secondary{border:0;border-radius:18px;padding:16px 22px;background:linear-gradient(90deg,#b97921,#f0ce7f);font-weight:800;color:#16100b;cursor:pointer;text-decoration:none}.error{color:#ff8c8c;margin-top:14px}.app{max-width:1200px;margin:auto;padding:28px}.topbar{display:flex;justify-content:space-between;gap:20px;align-items:center}.topbar h1{font-size:44px}.top-actions{display:flex;gap:10px}.secondary{background:#241b14;color:var(--gold2);border:1px solid var(--line)}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:24px 0}.stats article,.table-card{background:#15100c;border:1px solid #3d2c16;border-radius:22px;padding:22px}.stats span{color:var(--muted)}.stats strong{display:block;font-size:32px;margin-top:8px}.toolbar{display:flex;gap:12px;margin-bottom:16px}.toolbar-actions{display:flex;gap:8px}.table-wrap{overflow:auto}.status{color:var(--muted);margin-bottom:14px}table{width:100%;border-collapse:collapse;min-width:760px}th,td{text-align:left;padding:15px;border-bottom:1px solid #352715}th{color:var(--gold2)}.phone-link{color:var(--gold2)}.delete-button{background:var(--danger);color:white;border:0;border-radius:10px;padding:9px 12px;cursor:pointer}.empty{text-align:center;color:var(--muted)}
+    [hidden]{display:none!important}@media(max-width:760px){.login-card{padding:28px 22px}.topbar,.toolbar{align-items:stretch;flex-direction:column}.stats{grid-template-columns:1fr}.toolbar-actions{display:grid;grid-template-columns:1fr 1fr}.top-actions{flex-wrap:wrap}}
+  </style>
 </head>
 <body>
-  <section id="loginView" class="login-shell">
-    <div class="login-card">
-      <div class="monogram">DS</div>
-      <p class="eyebrow">Área administrativa</p>
-      <h1>Painel de convidados</h1>
-      <p class="muted">Digite a senha para visualizar as confirmações.</p>
-      <form id="loginForm">
-        <label for="password">Senha</label>
-        <input id="password" type="password" inputmode="numeric" autocomplete="current-password" placeholder="Digite a senha" required>
-        <button type="submit">Entrar</button>
-        <p id="loginError" class="error" hidden>Senha incorreta.</p>
-      </form>
-    </div>
-  </section>
-
-  <main id="panelView" class="app" hidden>
-    <header class="topbar">
-      <div>
-        <p class="eyebrow">Dirlaine Souza Nail Designer</p>
-        <h1>Lista de convidados</h1>
-      </div>
-      <div class="top-actions">
-        <a class="secondary" href="/">Abrir convite</a>
-        <button id="logoutButton" class="secondary" type="button">Sair</button>
-      </div>
-    </header>
-
-    <section class="stats">
-      <article><span>Confirmações</span><strong id="totalConfirmations">0</strong></article>
-      <article><span>Clientes confirmadas</span><strong id="totalPeople">0</strong></article>
-      <article><span>Última confirmação</span><strong id="lastConfirmation">—</strong></article>
-    </section>
-
-    <section class="toolbar">
-      <input id="searchInput" type="search" placeholder="Pesquisar por nome ou telefone">
-      <div class="toolbar-actions">
-        <button id="refreshButton" type="button">Atualizar</button>
-        <button id="exportButton" type="button">Baixar CSV</button>
-        <button id="printButton" type="button">Imprimir</button>
-      </div>
-    </section>
-
-    <section class="table-card">
-      <div id="statusMessage" class="status">Carregando...</div>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Nome</th>
-              <th>Telefone</th>
-              <th>Observação</th>
-              <th>Data e hora</th>
-              <th>Ação</th>
-            </tr>
-          </thead>
-          <tbody id="guestRows"></tbody>
-        </table>
-      </div>
-    </section>
-  </main>
-
-  <script src="convidados.js"></script>
+<section id="loginView" class="login-shell">
+  <div class="login-card">
+    <div class="monogram">DS</div><p class="eyebrow">Área administrativa</p><h1>Painel de convidados</h1>
+    <p class="muted">Digite a senha para visualizar as confirmações.</p>
+    <form id="loginForm"><label for="password">Senha</label><input id="password" type="password" inputmode="numeric" placeholder="Digite a senha" required><button type="submit">Entrar</button><p id="loginError" class="error" hidden></p></form>
+  </div>
+</section>
+<main id="panelView" class="app" hidden>
+  <header class="topbar"><div><p class="eyebrow">Dirlaine Souza Nail Designer</p><h1>Lista de convidados</h1></div><div class="top-actions"><a class="secondary" href="/">Abrir convite</a><button id="logoutButton" class="secondary" type="button">Sair</button></div></header>
+  <section class="stats"><article><span>Confirmações</span><strong id="totalConfirmations">0</strong></article><article><span>Clientes confirmadas</span><strong id="totalPeople">0</strong></article><article><span>Última confirmação</span><strong id="lastConfirmation">—</strong></article></section>
+  <section class="toolbar"><input id="searchInput" type="search" placeholder="Pesquisar por nome ou telefone"><div class="toolbar-actions"><button id="refreshButton" type="button">Atualizar</button><button id="exportButton" type="button">Baixar CSV</button><button id="printButton" type="button">Imprimir</button></div></section>
+  <section class="table-card"><div id="statusMessage" class="status">Carregando...</div><div class="table-wrap"><table><thead><tr><th>Nome</th><th>Telefone</th><th>Observação</th><th>Data e hora</th><th>Ação</th></tr></thead><tbody id="guestRows"></tbody></table></div></section>
+</main>
+<script>
+(() => {
+  const SESSION_KEY="dirlaine_panel_password";
+  const $=id=>document.getElementById(id);
+  const loginView=$("loginView"),panelView=$("panelView"),loginForm=$("loginForm"),passwordInput=$("password"),loginError=$("loginError"),guestRows=$("guestRows"),statusMessage=$("statusMessage"),searchInput=$("searchInput");
+  let guests=[];
+  const escapeHtml=v=>String(v??"").replace(/[&<>'"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[c]));
+  const getPassword=()=>sessionStorage.getItem(SESSION_KEY)||"";
+  async function apiRequest(options={}){
+    const response=await fetch("/api/convidados",{method:options.method||"GET",headers:{"Content-Type":"application/json","x-panel-password":getPassword()},body:options.body?JSON.stringify(options.body):undefined});
+    const text=await response.text(); let payload={}; try{payload=text?JSON.parse(text):{}}catch{payload={error:text||"Resposta inválida do servidor."}}
+    if(response.status===401) throw new Error("Senha incorreta.");
+    if(!response.ok) throw new Error(payload.error||"Não foi possível carregar os dados.");
+    return payload;
+  }
+  const formatDate=v=>v?new Date(v).toLocaleString("pt-BR",{dateStyle:"short",timeStyle:"short"}):"—";
+  function render(){const term=searchInput.value.trim().toLowerCase();const filtered=guests.filter(i=>`${i.nome||""} ${i.telefone||""}`.toLowerCase().includes(term));guestRows.innerHTML=filtered.length?filtered.map(i=>`<tr><td><strong>${escapeHtml(i.nome)}</strong></td><td><a class="phone-link" href="https://wa.me/55${String(i.telefone||"").replace(/\D/g,"")}" target="_blank" rel="noopener">${escapeHtml(i.telefone||"—")}</a></td><td>${escapeHtml(i.observacoes||"—")}</td><td>${formatDate(i.criado_em||i.created_at)}</td><td><button class="delete-button" data-id="${escapeHtml(i.id)}">Excluir</button></td></tr>`).join(""):`<tr><td class="empty" colspan="5">Nenhuma confirmação encontrada.</td></tr>`;$("totalConfirmations").textContent=guests.length;$("totalPeople").textContent=guests.length;$("lastConfirmation").textContent=guests.length?formatDate(guests[0].criado_em||guests[0].created_at):"—";statusMessage.textContent=`${filtered.length} registro(s) exibido(s).`}
+  async function loadGuests(){statusMessage.textContent="Carregando confirmações...";try{const data=await apiRequest();guests=Array.isArray(data.guests)?data.guests:[];render()}catch(e){statusMessage.textContent=e.message;if(e.message.includes("Senha"))logout()}}
+  function showPanel(){loginView.hidden=true;panelView.hidden=false;loadGuests()}
+  function logout(){sessionStorage.removeItem(SESSION_KEY);panelView.hidden=true;loginView.hidden=false;passwordInput.value=""}
+  loginForm.addEventListener("submit",async e=>{e.preventDefault();loginError.hidden=true;const pass=passwordInput.value.trim();if(!pass){loginError.textContent="Digite a senha.";loginError.hidden=false;return}sessionStorage.setItem(SESSION_KEY,pass);try{await apiRequest();showPanel()}catch(err){sessionStorage.removeItem(SESSION_KEY);loginError.textContent=err.message;loginError.hidden=false}});
+  $("logoutButton").addEventListener("click",logout);$("refreshButton").addEventListener("click",loadGuests);$("printButton").addEventListener("click",()=>window.print());searchInput.addEventListener("input",render);
+  guestRows.addEventListener("click",async e=>{const b=e.target.closest("[data-id]");if(!b||!confirm("Excluir esta confirmação?"))return;b.disabled=true;try{await apiRequest({method:"DELETE",body:{id:b.dataset.id}});await loadGuests()}catch(err){statusMessage.textContent=err.message;b.disabled=false}});
+  $("exportButton").addEventListener("click",()=>{const rows=[["Nome","Telefone","Observação","Data e hora"],...guests.map(i=>[i.nome,i.telefone,i.observacoes||"",formatDate(i.criado_em||i.created_at)])];const csv=rows.map(r=>r.map(v=>`"${String(v??"").replace(/"/g,'""')}"`).join(";")).join("\n");const blob=new Blob(["\ufeff"+csv],{type:"text/csv;charset=utf-8"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="convidados-dirlaine.csv";a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)});
+  if(getPassword())showPanel();setInterval(()=>{if(!panelView.hidden)loadGuests()},30000);
+})();
+</script>
 </body>
 </html>
