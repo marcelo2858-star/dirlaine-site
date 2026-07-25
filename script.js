@@ -3,7 +3,6 @@ const countdownIds = ["days", "hours", "minutes", "seconds"];
 
 function updateCountdown() {
   const difference = Math.max(0, EVENT_DATE - Date.now());
-
   const values = [
     Math.floor(difference / 86400000),
     Math.floor((difference % 86400000) / 3600000),
@@ -13,7 +12,6 @@ function updateCountdown() {
 
   countdownIds.forEach((id, index) => {
     const element = document.getElementById(id);
-
     if (element) {
       element.textContent = String(values[index]).padStart(2, "0");
     }
@@ -34,7 +32,6 @@ const navLinks = document.getElementById("navLinks");
 
 menuButton?.addEventListener("click", () => {
   const isOpen = navLinks?.classList.toggle("open") ?? false;
-
   document.body.classList.toggle("menu-open", isOpen);
   menuButton.setAttribute("aria-expanded", String(isOpen));
 });
@@ -55,14 +52,12 @@ const observer = new IntersectionObserver(
       }
     });
   },
-  {
-    threshold: 0.12
-  }
+  { threshold: 0.12 }
 );
 
-document
-  .querySelectorAll(".reveal")
-  .forEach(element => observer.observe(element));
+document.querySelectorAll(".reveal").forEach(element => {
+  observer.observe(element);
+});
 
 function getConfig() {
   const config = window.DIRLAINE_CONFIG || {};
@@ -86,8 +81,7 @@ async function saveConfirmation(entry) {
   }
 
   const apiUrl =
-    `${config.supabaseUrl.replace(/\/$/, "")}` +
-    "/rest/v1/confirmacoes_inauguracao";
+    `${config.supabaseUrl.replace(/\/$/, "")}/rest/v1/confirmacoes_inauguracao`;
 
   const response = await fetch(apiUrl, {
     method: "POST",
@@ -101,107 +95,74 @@ async function saveConfirmation(entry) {
       nome: entry.name,
       telefone: entry.phone,
       presenca: true,
-      acompanhantes: Math.max(0, Number(entry.guests) - 1),
+      acompanhantes: 0,
       observacoes: entry.note || null
     })
   });
 
   if (!response.ok) {
     const errorText = await response.text();
-
-    throw new Error(
-      errorText || `Erro ${response.status} ao salvar confirmação.`
-    );
+    throw new Error(errorText || `Erro ${response.status}`);
   }
 }
 
-function openWhatsApp(entry) {
+function buildWhatsAppUrl(entry) {
   const message =
     `Olá! Meu nome é ${entry.name}. ` +
-    `Confirmo minha presença na inauguração da Dirlaine Souza Nail Designer ` +
-    `em 01/08/2026 às 17h. ` +
-    `Quantidade total de pessoas: ${entry.guests}.` +
+    `Confirmo minha presença individual na inauguração da ` +
+    `Dirlaine Souza Nail Designer em 01/08/2026 às 17h.` +
     (entry.note ? ` Observação: ${entry.note}` : "");
 
-  const whatsappUrl =
-    `https://wa.me/5569984792139?text=` +
-    encodeURIComponent(message);
-
-  window.open(whatsappUrl, "_blank", "noopener");
+  return (
+    "https://wa.me/5569984792139?text=" +
+    encodeURIComponent(message)
+  );
 }
 
 const form = document.getElementById("rsvpForm");
 const submitButton = document.getElementById("submitButton");
-const successBox = document.getElementById("success");
 
 form?.addEventListener("submit", async event => {
   event.preventDefault();
 
   const nameInput = document.getElementById("name");
   const phoneInput = document.getElementById("phone");
-  const guestsInput = document.getElementById("guests");
   const noteInput = document.getElementById("note");
 
   const entry = {
     name: nameInput?.value.trim() || "",
     phone: phoneInput?.value.trim() || "",
-    guests: Number(guestsInput?.value || 1),
     note: noteInput?.value.trim() || ""
   };
 
   const phoneDigits = entry.phone.replace(/\D/g, "");
 
   if (entry.name.length < 2) {
-    alert("Digite seu nome completo.");
     nameInput?.focus();
+    nameInput?.setCustomValidity("Digite seu nome completo.");
+    nameInput?.reportValidity();
+    nameInput?.setCustomValidity("");
     return;
   }
 
   if (phoneDigits.length < 8) {
-    alert("Digite um telefone válido.");
     phoneInput?.focus();
-    return;
-  }
-
-  if (!Number.isInteger(entry.guests) || entry.guests < 1) {
-    alert("Selecione uma quantidade válida de pessoas.");
-    guestsInput?.focus();
+    phoneInput?.setCustomValidity("Digite um telefone válido.");
+    phoneInput?.reportValidity();
+    phoneInput?.setCustomValidity("");
     return;
   }
 
   if (submitButton) {
     submitButton.disabled = true;
-    submitButton.textContent = "Registrando...";
-  }
-
-  if (successBox) {
-    successBox.hidden = true;
+    submitButton.textContent = "Abrindo WhatsApp...";
   }
 
   try {
     await saveConfirmation(entry);
-
-    if (successBox) {
-      successBox.textContent =
-        "Presença registrada com sucesso. Obrigada!";
-      successBox.hidden = false;
-    }
-
-    form.reset();
-    openWhatsApp(entry);
   } catch (error) {
-    console.error("Erro ao registrar confirmação:", error);
-
-    alert(
-      "Não foi possível registrar na lista online agora. " +
-      "A mensagem será aberta no WhatsApp para concluir a confirmação."
-    );
-
-    openWhatsApp(entry);
-  } finally {
-    if (submitButton) {
-      submitButton.disabled = false;
-      submitButton.textContent = "Confirmar presença";
-    }
+    console.error("Erro ao salvar no Supabase:", error);
   }
+
+  window.location.href = buildWhatsAppUrl(entry);
 });
