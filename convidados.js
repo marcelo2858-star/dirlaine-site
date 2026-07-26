@@ -1,52 +1,17 @@
-const SUPABASE_URL = process.env.SUPABASE_URL || "https://cpnvkjmpmcidyddkdztp.supabase.co";
-const SUPABASE_SECRET = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SECRET_KEY;
-const PANEL_PASSWORD = process.env.PANEL_PASSWORD || "2858";
-
-module.exports = async function handler(req, res) {
-  res.setHeader("Cache-Control", "no-store");
-
-  if (req.headers["x-panel-password"] !== PANEL_PASSWORD) {
-    return res.status(401).json({error:"Senha incorreta."});
+const TABLE='confirmacoes_inauguracao';
+function send(res,status,data){res.status(status).setHeader('Content-Type','application/json; charset=utf-8');res.end(JSON.stringify(data));}
+function env(){const url=process.env.SUPABASE_URL||'https://cpnvkjmpmcidyddkdztp.supabase.co';const key=process.env.SUPABASE_SERVICE_ROLE_KEY||process.env.SUPABASE_SECRET_KEY;if(!url||!key)throw new Error('Configure SUPABASE_URL e SUPABASE_SERVICE_ROLE_KEY na Vercel.');return{url,key};}
+async function supa(path,options={}){const {url,key}=env();return fetch(`${url}/rest/v1/${path}`,{...options,headers:{apikey:key,Authorization:`Bearer ${key}`,'Content-Type':'application/json',...(options.headers||{})}});}
+module.exports=async(req,res)=>{try{
+  if(req.method==='POST'){
+    const nome=String(req.body?.nome||'').trim().slice(0,100);const telefone=String(req.body?.telefone||'').replace(/\D/g,'').slice(0,11);const observacoes=String(req.body?.observacoes||'').trim().slice(0,300);
+    if(nome.length<3||telefone.length<10)return send(res,400,{error:'Nome ou telefone inválido.'});
+    let check=await supa(`${TABLE}?telefone=eq.${encodeURIComponent(telefone)}&select=id&limit=1`);if(!check.ok)throw new Error(await check.text());const exists=await check.json();if(exists.length)return send(res,409,{error:'Este telefone já confirmou presença.'});
+    const r=await supa(TABLE,{method:'POST',headers:{Prefer:'return=representation'},body:JSON.stringify({nome,telefone,observacoes,presente:true,acompanhantes:0})});if(!r.ok)throw new Error(await r.text());const rows=await r.json();return send(res,201,{ok:true,convidado:rows[0]});
   }
-
-  if (!SUPABASE_SECRET) {
-    return res.status(500).json({error:"Chave secreta do Supabase não configurada na Vercel."});
+  if(req.method==='GET'){
+    if(String(req.headers['x-painel-senha']||'')!==(process.env.PAINEL_SENHA||'2858'))return send(res,401,{error:'Senha incorreta.'});
+    const r=await supa(`${TABLE}?select=id,nome,telefone,observacoes,criado_em&order=criado_em.desc`);if(!r.ok)throw new Error(await r.text());return send(res,200,{convidados:await r.json()});
   }
-
-  const headers = {
-    apikey: SUPABASE_SECRET,
-    Authorization: `Bearer ${SUPABASE_SECRET}`,
-    "Content-Type": "application/json"
-  };
-
-  try {
-    if (req.method === "GET") {
-      const response = await fetch(
-        `${SUPABASE_URL}/rest/v1/confirmacoes_inauguracao?select=id,nome,telefone,observacoes,criado_em&order=criado_em.desc`,
-        {headers}
-      );
-      const data = await response.json();
-      if (!response.ok) return res.status(response.status).json({error:data.message || "Erro ao consultar convidados."});
-      return res.status(200).json({guests:data});
-    }
-
-    if (req.method === "DELETE") {
-      const id = req.body?.id;
-      if (!id) return res.status(400).json({error:"Identificador ausente."});
-      const response = await fetch(
-        `${SUPABASE_URL}/rest/v1/confirmacoes_inauguracao?id=eq.${encodeURIComponent(id)}`,
-        {method:"DELETE", headers:{...headers, Prefer:"return=minimal"}}
-      );
-      if (!response.ok) {
-        const data = await response.json().catch(() => ({}));
-        return res.status(response.status).json({error:data.message || "Erro ao excluir confirmação."});
-      }
-      return res.status(200).json({ok:true});
-    }
-
-    res.setHeader("Allow", "GET, DELETE");
-    return res.status(405).json({error:"Método não permitido."});
-  } catch (error) {
-    return res.status(500).json({error:error.message || "Erro interno."});
-  }
-};
+  res.setHeader('Allow','GET, POST');return send(res,405,{error:'Método não permitido.'});
+}catch(e){console.error(e);return send(res,500,{error:'Erro interno. Verifique as variáveis da Vercel e o banco SQL.'});}};
