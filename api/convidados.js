@@ -93,18 +93,16 @@ module.exports = async function handler(req, res) {
       }
 
       const resposta = await chamarSupabase(TABLE, {
-        method: "POST",
-        headers: {
-          Prefer: "return=representation"
-        },
-        body: JSON.stringify({
-          nome,
-          telefone,
-          observacoes,
-          presente: true,
-          acompanhantes: 0
-        })
-      });
+  method: "POST",
+  headers: {
+    Prefer: "return=minimal"
+  },
+  body: JSON.stringify({
+    nome,
+    telefone,
+    observacoes
+  })
+});
 
       const texto = await resposta.text();
 
