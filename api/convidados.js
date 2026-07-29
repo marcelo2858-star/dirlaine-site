@@ -1,52 +1,20 @@
 const TABLE = "confirmacoes";
 
-function responder(res, status, dados) {
+function enviarJSON(res, status, dados) {
   res.statusCode = status;
   res.setHeader("Content-Type", "application/json; charset=utf-8");
   res.setHeader("Cache-Control", "no-store");
-  return res.end(JSON.stringify(dados));
+  res.end(JSON.stringify(dados));
 }
 
-function obterConfiguracaoSupabase() {
-  const url = String(process.env.SUPABASE_URL || "")
-    .trim()
-    .replace(/\/+$/, "");
-
-  const key = String(
-    process.env.SUPABASE_SERVICE_ROLE_KEY || ""
-  ).trim();
-
-  if (!url) {
-    throw new Error("SUPABASE_URL não está configurada na Vercel.");
-  }
-
-  if (!key) {
-    throw new Error(
-      "SUPABASE_SERVICE_ROLE_KEY não está configurada na Vercel."
-    );
-  }
-
-  return { url, key };
+function limparTelefone(valor) {
+  return String(valor || "")
+    .replace(/\D/g, "")
+    .slice(0, 11);
 }
 
-async function chamarSupabase(caminho, opcoes = {}) {
-  const { url, key } = obterConfiguracaoSupabase();
-
-  return fetch(`${url}/rest/v1/${caminho}`, {
-    ...opcoes,
-    headers: {
-      apikey: key,
-      Authorization: `Bearer ${key}`,
-      "Content-Type": "application/json",
-      ...opcoes.headers
-    }
-  });
-}
-
-function lerCorpo(req) {
-  if (!req.body) {
-    return {};
-  }
+function obterBody(req) {
+  if (!req.body) return {};
 
   if (typeof req.body === "object") {
     return req.body;
@@ -59,16 +27,57 @@ function lerCorpo(req) {
   }
 }
 
-function limparTelefone(valor) {
-  return String(valor || "")
-    .replace(/\D/g, "")
-    .slice(0, 11);
+function obterConfiguracao() {
+  const supabaseUrl = String(
+    process.env.SUPABASE_URL || ""
+  )
+    .trim()
+    .replace(/\/+$/, "");
+
+  const supabaseKey = String(
+    process.env.SUPABASE_SERVICE_ROLE_KEY || ""
+  ).trim();
+
+  if (!supabaseUrl) {
+    throw new Error(
+      "SUPABASE_URL não está configurada na Vercel."
+    );
+  }
+
+  if (!supabaseKey) {
+    throw new Error(
+      "SUPABASE_SERVICE_ROLE_KEY não está configurada na Vercel."
+    );
+  }
+
+  return {
+    supabaseUrl,
+    supabaseKey
+  };
 }
 
-function lerRespostaSupabase(texto) {
-  if (!texto) {
-    return null;
-  }
+async function requisitarSupabase(caminho, opcoes) {
+  const { supabaseUrl, supabaseKey } =
+    obterConfiguracao();
+
+  return fetch(
+    `${supabaseUrl}/rest/v1/${caminho}`,
+    {
+      ...opcoes,
+      headers: {
+        apikey: supabaseKey,
+        Authorization: `Bearer ${supabaseKey}`,
+        "Content-Type": "application/json",
+        ...(opcoes?.headers || {})
+      }
+    }
+  );
+}
+
+async function lerResposta(resposta) {
+  const texto = await resposta.text();
+
+  if (!texto) return null;
 
   try {
     return JSON.parse(texto);
@@ -80,48 +89,53 @@ function lerRespostaSupabase(texto) {
 module.exports = async function handler(req, res) {
   try {
     if (req.method === "POST") {
-      const corpo = lerCorpo(req);
+      const body = obterBody(req);
 
-      const nome = String(corpo.nome || "")
+      const nome = String(body.nome || "")
         .trim()
         .slice(0, 100);
 
-      const telefone = limparTelefone(corpo.telefone);
+      const telefone = limparTelefone(body.telefone);
 
-      const observacoes = String(corpo.observacoes || "")
+      const observacoes = String(
+        body.observacoes || ""
+      )
         .trim()
         .slice(0, 300);
 
       if (nome.length < 3) {
-        return responder(res, 400, {
+        return enviarJSON(res, 400, {
           error: "Digite o nome completo."
         });
       }
 
       if (telefone.length < 10) {
-        return responder(res, 400, {
-          error: "Digite um telefone válido com DDD."
+        return enviarJSON(res, 400, {
+          error:
+            "Digite um telefone válido com DDD."
         });
       }
 
-      const resposta = await chamarSupabase(TABLE, {
-        method: "POST",
-        headers: {
-          Prefer: "return=minimal"
-        },
-        body: JSON.stringify({
-          nome,
-          telefone,
-          observacoes
-        })
-      });
+      const resposta = await requisitarSupabase(
+        TABLE,
+        {
+          method: "POST",
+          headers: {
+            Prefer: "return=minimal"
+          },
+          body: JSON.stringify({
+            nome,
+            telefone,
+            observacoes
+          })
+        }
+      );
 
-      const texto = await resposta.text();
-      const dados = lerRespostaSupabase(texto);
+      const dados = await lerResposta(resposta);
 
       if (!resposta.ok) {
         console.error(
-          "Erro Supabase ao salvar:",
+          "Erro ao salvar no Supabase:",
           resposta.status,
           dados
         );
@@ -131,36 +145,40 @@ module.exports = async function handler(req, res) {
             ? String(dados.code || "")
             : "";
 
-        const detalhe =
+        const mensagem =
           dados && typeof dados === "object"
             ? String(
                 dados.message ||
                 dados.details ||
                 dados.hint ||
-                ""
+                "Erro desconhecido no Supabase."
               )
             : String(dados || "");
 
         if (
           codigo === "23505" ||
-          detalhe.toLowerCase().includes("duplicate") ||
-          detalhe.toLowerCase().includes("unique")
+          mensagem
+            .toLowerCase()
+            .includes("duplicate") ||
+          mensagem
+            .toLowerCase()
+            .includes("unique")
         ) {
-          return responder(res, 409, {
-            error: "Este telefone já confirmou presença."
+          return enviarJSON(res, 409, {
+            error:
+              "Este telefone já confirmou presença."
           });
         }
 
-      return responder(res, 500, {
-  error: detalhe
-    ? `Erro do Supabase: ${detalhe}`
-    : "Não foi possível salvar a confirmação."
-});
-      
+        return enviarJSON(res, 500, {
+          error: `Erro do Supabase: ${mensagem}`
+        });
+      }
 
-      return responder(res, 201, {
+      return enviarJSON(res, 201, {
         ok: true,
-        mensagem: "Presença confirmada com sucesso."
+        mensagem:
+          "Presença confirmada com sucesso."
       });
     }
 
@@ -174,53 +192,55 @@ module.exports = async function handler(req, res) {
       ).trim();
 
       if (senhaInformada !== senhaCorreta) {
-        return responder(res, 401, {
+        return enviarJSON(res, 401, {
           error: "Senha incorreta."
         });
       }
 
-      const resposta = await chamarSupabase(
-        `${TABLE}?select=*&order=criado_em.desc`,
+      const resposta = await requisitarSupabase(
+        `${TABLE}?select=*`,
         {
           method: "GET"
         }
       );
 
-      const texto = await resposta.text();
-      const dados = lerRespostaSupabase(texto);
+      const dados = await lerResposta(resposta);
 
       if (!resposta.ok) {
-        console.error(
-          "Erro Supabase ao carregar:",
-          resposta.status,
-          dados
-        );
+        const mensagem =
+          dados && typeof dados === "object"
+            ? String(
+                dados.message ||
+                dados.details ||
+                "Erro desconhecido."
+              )
+            : String(dados || "");
 
-        return responder(res, 500, {
-          error: "Não foi possível carregar os convidados.",
-          detalhe:
-            dados && typeof dados === "object"
-              ? dados.message || dados.details || ""
-              : String(dados || "")
+        return enviarJSON(res, 500, {
+          error: `Erro ao carregar convidados: ${mensagem}`
         });
       }
 
-      return responder(res, 200, {
-        convidados: Array.isArray(dados) ? dados : []
+      return enviarJSON(res, 200, {
+        convidados: Array.isArray(dados)
+          ? dados
+          : []
       });
     }
 
     res.setHeader("Allow", "GET, POST");
 
-    return responder(res, 405, {
+    return enviarJSON(res, 405, {
       error: "Método não permitido."
     });
   } catch (erro) {
-    console.error("Erro interno da API:", erro);
+    console.error("Erro da API:", erro);
 
-    return responder(res, 500, {
-      error: "Erro interno da API.",
-      detalhe: erro.message || "Erro desconhecido."
+    return enviarJSON(res, 500, {
+      error:
+        erro && erro.message
+          ? erro.message
+          : "Erro interno da API."
     });
   }
 };
