@@ -1,4 +1,4 @@
-const TABLE = "confirmacoes_inauguracao";
+const TABLE = "confirmacoes";
 
 function responder(res, status, dados) {
   res.status(status);
