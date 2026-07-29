@@ -84,8 +84,13 @@ module.exports = async function handler(req, res) {
       );
 
       if (!consulta.ok) {
-        const detalhes = await consulta.text();
-        console.error("Erro ao consultar telefone:", detalhes);
+  const detalhes = await consulta.text();
+  console.error("Erro ao consultar telefone:", detalhes);
+
+  return responder(res, consulta.status, {
+    error: `Supabase respondeu ${consulta.status}: ${detalhes}`
+  });
+}
 
         return responder(res, 500, {
           error: "Erro ao verificar a confirmação."
