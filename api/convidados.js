@@ -65,6 +65,18 @@ function limparTelefone(valor) {
     .slice(0, 11);
 }
 
+function lerRespostaSupabase(texto) {
+  if (!texto) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(texto);
+  } catch {
+    return texto;
+  }
+}
+
 module.exports = async function handler(req, res) {
   try {
     if (req.method === "POST") {
@@ -93,29 +105,26 @@ module.exports = async function handler(req, res) {
       }
 
       const resposta = await chamarSupabase(TABLE, {
-  method: "POST",
-  headers: {
-    Prefer: "return=minimal"
-  },
-  body: JSON.stringify({
-    nome,
-    telefone,
-    observacoes
-  })
-});
+        method: "POST",
+        headers: {
+          Prefer: "return=minimal"
+        },
+        body: JSON.stringify({
+          nome,
+          telefone,
+          observacoes
+        })
+      });
 
       const texto = await resposta.text();
-
-      let dados = null;
-
-      try {
-        dados = texto ? JSON.parse(texto) : null;
-      } catch {
-        dados = texto;
-      }
+      const dados = lerRespostaSupabase(texto);
 
       if (!resposta.ok) {
-        console.error("Erro do Supabase:", resposta.status, dados);
+        console.error(
+          "Erro Supabase ao salvar:",
+          resposta.status,
+          dados
+        );
 
         const codigo =
           dados && typeof dados === "object"
@@ -124,7 +133,12 @@ module.exports = async function handler(req, res) {
 
         const detalhe =
           dados && typeof dados === "object"
-            ? String(dados.message || dados.details || "")
+            ? String(
+                dados.message ||
+                dados.details ||
+                dados.hint ||
+                ""
+              )
             : String(dados || "");
 
         if (
@@ -145,8 +159,7 @@ module.exports = async function handler(req, res) {
 
       return responder(res, 201, {
         ok: true,
-        mensagem: "Presença confirmada com sucesso.",
-        convidado: Array.isArray(dados) ? dados[0] : dados
+        mensagem: "Presença confirmada com sucesso."
       });
     }
 
@@ -173,32 +186,26 @@ module.exports = async function handler(req, res) {
       );
 
       const texto = await resposta.text();
-
-      let convidados = [];
-
-      try {
-        convidados = texto ? JSON.parse(texto) : [];
-      } catch {
-        convidados = [];
-      }
+      const dados = lerRespostaSupabase(texto);
 
       if (!resposta.ok) {
         console.error(
-          "Erro ao carregar convidados:",
+          "Erro Supabase ao carregar:",
           resposta.status,
-          texto
+          dados
         );
 
         return responder(res, 500, {
           error: "Não foi possível carregar os convidados.",
-          detalhe: texto
+          detalhe:
+            dados && typeof dados === "object"
+              ? dados.message || dados.details || ""
+              : String(dados || "")
         });
       }
 
       return responder(res, 200, {
-        convidados: Array.isArray(convidados)
-          ? convidados
-          : []
+        convidados: Array.isArray(dados) ? dados : []
       });
     }
 
@@ -211,7 +218,8 @@ module.exports = async function handler(req, res) {
     console.error("Erro interno da API:", erro);
 
     return responder(res, 500, {
-      error: erro.message || "Erro interno da API."
+      error: "Erro interno da API.",
+      detalhe: erro.message || "Erro desconhecido."
     });
   }
 };
