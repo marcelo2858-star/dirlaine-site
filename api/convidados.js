@@ -151,11 +151,12 @@ module.exports = async function handler(req, res) {
           });
         }
 
-        return responder(res, 500, {
-          error: "Não foi possível salvar a confirmação.",
-          detalhe
-        });
-      }
+      return responder(res, 500, {
+  error: detalhe
+    ? `Erro do Supabase: ${detalhe}`
+    : "Não foi possível salvar a confirmação."
+});
+      
 
       return responder(res, 201, {
         ok: true,
