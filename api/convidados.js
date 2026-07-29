@@ -4,7 +4,6 @@ function responder(res, status, dados) {
   res.statusCode = status;
   res.setHeader("Content-Type", "application/json; charset=utf-8");
   res.setHeader("Cache-Control", "no-store");
-
   return res.end(JSON.stringify(dados));
 }
 
@@ -18,14 +17,12 @@ function obterConfiguracaoSupabase() {
   ).trim();
 
   if (!url) {
-    throw new Error(
-      "A variável SUPABASE_URL não está configurada na Vercel."
-    );
+    throw new Error("SUPABASE_URL não está configurada na Vercel.");
   }
 
   if (!key) {
     throw new Error(
-      "A variável SUPABASE_SERVICE_ROLE_KEY não está configurada na Vercel."
+      "SUPABASE_SERVICE_ROLE_KEY não está configurada na Vercel."
     );
   }
 
@@ -47,4 +44,176 @@ async function chamarSupabase(caminho, opcoes = {}) {
 }
 
 function lerCorpo(req) {
-  if
+  if (!req.body) {
+    return {};
+  }
+
+  if (typeof req.body === "object") {
+    return req.body;
+  }
+
+  try {
+    return JSON.parse(req.body);
+  } catch {
+    return {};
+  }
+}
+
+function limparTelefone(valor) {
+  return String(valor || "")
+    .replace(/\D/g, "")
+    .slice(0, 11);
+}
+
+module.exports = async function handler(req, res) {
+  try {
+    if (req.method === "POST") {
+      const corpo = lerCorpo(req);
+
+      const nome = String(corpo.nome || "")
+        .trim()
+        .slice(0, 100);
+
+      const telefone = limparTelefone(corpo.telefone);
+
+      const observacoes = String(corpo.observacoes || "")
+        .trim()
+        .slice(0, 300);
+
+      if (nome.length < 3) {
+        return responder(res, 400, {
+          error: "Digite o nome completo."
+        });
+      }
+
+      if (telefone.length < 10) {
+        return responder(res, 400, {
+          error: "Digite um telefone válido com DDD."
+        });
+      }
+
+      const resposta = await chamarSupabase(TABLE, {
+        method: "POST",
+        headers: {
+          Prefer: "return=representation"
+        },
+        body: JSON.stringify({
+          nome,
+          telefone,
+          observacoes,
+          presente: true,
+          acompanhantes: 0
+        })
+      });
+
+      const texto = await resposta.text();
+
+      let dados = null;
+
+      try {
+        dados = texto ? JSON.parse(texto) : null;
+      } catch {
+        dados = texto;
+      }
+
+      if (!resposta.ok) {
+        console.error("Erro do Supabase:", resposta.status, dados);
+
+        const codigo =
+          dados && typeof dados === "object"
+            ? String(dados.code || "")
+            : "";
+
+        const detalhe =
+          dados && typeof dados === "object"
+            ? String(dados.message || dados.details || "")
+            : String(dados || "");
+
+        if (
+          codigo === "23505" ||
+          detalhe.toLowerCase().includes("duplicate") ||
+          detalhe.toLowerCase().includes("unique")
+        ) {
+          return responder(res, 409, {
+            error: "Este telefone já confirmou presença."
+          });
+        }
+
+        return responder(res, 500, {
+          error: "Não foi possível salvar a confirmação.",
+          detalhe
+        });
+      }
+
+      return responder(res, 201, {
+        ok: true,
+        mensagem: "Presença confirmada com sucesso.",
+        convidado: Array.isArray(dados) ? dados[0] : dados
+      });
+    }
+
+    if (req.method === "GET") {
+      const senhaInformada = String(
+        req.headers["x-painel-senha"] || ""
+      ).trim();
+
+      const senhaCorreta = String(
+        process.env.PAINEL_SENHA || "2858"
+      ).trim();
+
+      if (senhaInformada !== senhaCorreta) {
+        return responder(res, 401, {
+          error: "Senha incorreta."
+        });
+      }
+
+      const resposta = await chamarSupabase(
+        `${TABLE}?select=*&order=criado_em.desc`,
+        {
+          method: "GET"
+        }
+      );
+
+      const texto = await resposta.text();
+
+      let convidados = [];
+
+      try {
+        convidados = texto ? JSON.parse(texto) : [];
+      } catch {
+        convidados = [];
+      }
+
+      if (!resposta.ok) {
+        console.error(
+          "Erro ao carregar convidados:",
+          resposta.status,
+          texto
+        );
+
+        return responder(res, 500, {
+          error: "Não foi possível carregar os convidados.",
+          detalhe: texto
+        });
+      }
+
+      return responder(res, 200, {
+        convidados: Array.isArray(convidados)
+          ? convidados
+          : []
+      });
+    }
+
+    res.setHeader("Allow", "GET, POST");
+
+    return responder(res, 405, {
+      error: "Método não permitido."
+    });
+  } catch (erro) {
+    console.error("Erro interno da API:", erro);
+
+    return responder(res, 500, {
+      error: erro.message || "Erro interno da API."
+    });
+  }
+};
