@@ -1,4 +1,4 @@
-const TABLE = "confirmacoes";
+const TABLE = "confirmacoes_inauguracao";
 
 function enviarJSON(res, status, dados) {
   res.statusCode = status;
