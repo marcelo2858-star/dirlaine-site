@@ -29,24 +29,24 @@ function obterBody(req) {
 
 function obterConfiguracao() {
   const supabaseUrl = String(
-    process.env.SUPABASE_URL || ""
+    process.env.DIRLAINE_SUPABASE_URL || ""
   )
     .trim()
     .replace(/\/+$/, "");
 
   const supabaseKey = String(
-    process.env.SUPABASE_SERVICE_ROLE_KEY || ""
+    process.env.DIRLAINE_SUPABASE_SERVICE_ROLE_KEY || ""
   ).trim();
 
   if (!supabaseUrl) {
     throw new Error(
-      "SUPABASE_URL não está configurada na Vercel."
+      "DIRLAINE_SUPABASE_URL não está configurada na Vercel."
     );
   }
 
   if (!supabaseKey) {
     throw new Error(
-      "SUPABASE_SERVICE_ROLE_KEY não está configurada na Vercel."
+      "DIRLAINE_SUPABASE_SERVICE_ROLE_KEY não está configurada na Vercel."
     );
   }
 
